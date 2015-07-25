@@ -35,7 +35,7 @@ module Travis
 
           sh.echo 'Installing Julia', ansi: :yellow
           case config[:os]
-          when 'linux', 'linux32'
+          when 'linux', 'linux64', 'linux32'
             sh.cmd 'mkdir -p ~/julia'
             sh.cmd %Q{curl -s -L --retry 7 '#{julia_url}' } \
               '| tar -C ~/julia -x -z --strip-components=1 -f -'
@@ -84,7 +84,7 @@ module Travis
 
           def julia_url
             case config[:os]
-            when 'linux'
+            when 'linux', 'linux64'
               status = 'linux-x86_64'
               os = 'linux'
               arch = 'x64'
