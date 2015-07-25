@@ -35,7 +35,7 @@ module Travis
 
           sh.echo 'Installing Julia', ansi: :yellow
           case config[:os]
-          when 'linux'
+          when 'linux', 'linux32'
             sh.cmd 'mkdir -p ~/julia'
             sh.cmd %Q{curl -s -L --retry 7 '#{julia_url}' } \
               '| tar -C ~/julia -x -z --strip-components=1 -f -'
@@ -83,21 +83,36 @@ module Travis
         private
 
           def julia_url
+            case config[:os]
+            when 'linux'
+              status = 'linux-x86_64'
+              os = 'linux'
+              arch = 'x64'
+              ext = "#{status}.tar.gz"
+            when 'linux32'
+              status = 'linux-i686'
+              os = 'linux'
+              arch = 'x86'
+              ext = "#{status}.tar.gz"
+            when 'osx'
+              status = 'osx10.7+'
+              os = 'osx'
+              arch = 'x64'
+              ext = "#{status}.dmg"
+            end
             case config[:julia]
             when 'release'
-              version = 'stable'
+              url = "status.julialang.org/stable/#{status}"
             when 'nightly'
-              version = 'download'
+              url = "status.julialang.org/download/#{status}"
+            when /^(\d+\.\d+)\.\d+$/
+              url = "s3.amazonaws.com/julialang/bin/#{os}/#{arch}/#{$1}/julia-#{config[:julia]}-#{ext}"
+            when /^(\d+\.\d+)$/
+              url = "s3.amazonaws.com/julialang/bin/#{os}/#{arch}/#{$1}/julia-#{$1}-latest-#{ext}"
             else
               sh.failure "Unknown Julia version: #{config[:julia]}"
             end
-            case config[:os]
-            when 'linux'
-              os = 'linux-x86_64'
-            when 'osx'
-              os = 'osx10.7+'
-            end
-            "https://status.julialang.org/#{version}/#{os}"
+            "https://#{url}"
           end
 
           def set_jl_pkg
