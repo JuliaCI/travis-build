@@ -86,18 +86,15 @@ module Travis
             case config[:os]
             when 'linux', 'linux64'
               status = 'linux-x86_64'
-              os = 'linux'
-              arch = 'x64'
+              osarch = 'linux/x64'
               ext = "#{status}.tar.gz"
             when 'linux32'
               status = 'linux-i686'
-              os = 'linux'
-              arch = 'x86'
+              osarch = 'linux/x86'
               ext = "#{status}.tar.gz"
             when 'osx'
               status = 'osx10.7+'
-              os = 'osx'
-              arch = 'x64'
+              osarch = 'osx/x64'
               ext = "#{status}.dmg"
             end
             case config[:julia]
@@ -106,9 +103,9 @@ module Travis
             when 'nightly'
               url = "status.julialang.org/download/#{status}"
             when /^(\d+\.\d+)\.\d+$/
-              url = "s3.amazonaws.com/julialang/bin/#{os}/#{arch}/#{$1}/julia-#{config[:julia]}-#{ext}"
+              url = "s3.amazonaws.com/julialang/bin/#{osarch}/#{$1}/julia-#{config[:julia]}-#{ext}"
             when /^(\d+\.\d+)$/
-              url = "s3.amazonaws.com/julialang/bin/#{os}/#{arch}/#{$1}/julia-#{$1}-latest-#{ext}"
+              url = "s3.amazonaws.com/julialang/bin/#{osarch}/#{$1}/julia-#{$1}-latest-#{ext}"
             else
               sh.failure "Unknown Julia version: #{config[:julia]}"
             end
